@@ -1,0 +1,102 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f4f8;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+      }
+
+      h1 {
+        text-align: center;
+        color: #004080;
+        margin-bottom: 30px;
+      }
+
+      ul {
+        list-style: none;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      li {
+        background: white;
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.1em;
+      }
+
+      li strong {
+        color: #0077cc;
+      }
+
+      a {
+        text-decoration: none;
+        background: #0077cc;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        font-weight: 600;
+      }
+
+      a:hover {
+        background-color: #005fa3;
+      }
+
+      /* Responsive for small screens */
+      @media (max-width: 480px) {
+        li {
+          flex-direction: column;
+          align-items: flex-start;
+          font-size: 1em;
+        }
+
+        a {
+          margin-top: 8px;
+        }
+      }
+    </style>
+</head>
+<body>
+    <img src="/media/dairyflatlogo.png" alt="Dairy Flat Airport Logo" class="logo" />
+    <h1>Welcome to Dairy Flat Airport</h1>
+
+    <h2>Search Results for "{{ query }}"</h2>
+
+    <!-- Lists all searched flights-->
+    <ul>{% for flight in results %}
+        <li>
+            <strong>{{ flight.flight_number }}</strong>
+            <br>
+            {{ flight.origin.city }} to {{ flight.destination.city }}
+            <br>
+            Departure: {{ flight.departure_time|date:"Y-m-d H:i" }}
+            <a href="{% url 'book' flight.id %}">Book</a>
+        </li> {% empty %}
+        <li>No matching flights found.</li> {% endfor %}
+    </ul>
+
+    <a href="{% url 'home' %}" class="home-button">← Back to Home</a>
+
+     <!-- Footer -->
+    <footer style="margin-top: 50px; padding: 20px; background-color: #f1f1f1; text-align: center;">
+        <p> 159352 A2
+            <br>&copy; Samantha Quilat - 23017224
+            <br> Logo made by ChatGpt
+        </p>
+    </footer>
+</body>
+</html>

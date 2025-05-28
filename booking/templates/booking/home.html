@@ -1,0 +1,166 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Dairy Flat Airport - Flights</title>
+
+     <style>
+      body {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        background: #f0f4f8;
+        margin: 0;
+        padding: 20px;
+        color: #333;
+        align-items: center;
+          justify-content: center;
+      }
+
+      div > img {
+        overflow-clip-margin: content-box;
+        overflow: clip;
+      }
+
+      img {
+          max-width: 200px;
+          justify-content: center;
+          align-items: center;
+          display: block;
+      }
+
+      img.logo {
+          max-width: 200px;
+          display: block;
+          margin: 0 auto;
+      }
+
+      h1 {
+        text-align: center;
+        color: #004080;
+        margin-bottom: 30px;
+      }
+
+      #searchbar{
+           max-width: 800px;
+      }
+
+      form {
+        display: contents;
+      }
+
+      ul {
+        list-style: none;
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 0;
+      }
+
+      #barsearch{
+          background: white;
+        margin-bottom: 15px;
+        padding: 15px 20px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.1em;
+      }
+
+      li {
+        background: white;
+        margin-bottom: 15px;
+        padding: 15px 20px 35px 15px;
+        border-radius: 8px;
+        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        font-size: 1.1em;
+      }
+
+      li strong {
+        color: #0077cc;
+      }
+
+      a, button {
+        text-decoration: none;
+        background: #0077cc;
+        color: white;
+        padding: 8px 14px;
+        border-radius: 5px;
+        transition: background-color 0.3s ease;
+        font-weight: 600;
+      }
+
+      a:hover, button {
+        background-color: #005fa3;
+      }
+
+      /* Responsive for small screens */
+      @media (max-width: 480px) {
+        li {
+          flex-direction: column;
+          align-items: flex-start;
+          font-size: 1em;
+        }
+
+        a, button {
+          margin-top: 8px;
+        }
+      }
+    </style>
+</head>
+
+<body>
+    <img src="{{ MEDIA_URL }}dairyflatlogo.png" alt="Logo">
+    <h1>Welcome to Dairy Flat Airport</h1>
+
+    <!-- Search Bar -->
+    <h2>Search and Cancel Flights</h2>
+    <ul id="searchbar">
+        <li id="barsearch">
+            <form name="search" id="searchform" action="{% url 'search_flights' %}" method="get">
+                <div>
+                    <label for="origin">Origin:</label>
+                    <input type="text" name="origin" id="origin" required>
+                </div>
+                <div>
+                    <label for="destination">Destination:</label>
+                    <input type="text" name="destination" id="destination" required>
+                </div>
+                <div>
+                    <button type="submit">Search</button>
+                </div>
+                <div>
+                    <a href="{% url 'cancel' %}">Cancel Bookings</a>
+                </div>
+            </form>
+        </li>
+    </ul>
+
+    <!-- Available Flights -->
+    <h2>Available Flights</h2>
+    <ul>
+        {% for flight in flights %}
+            <li>
+                <strong>{{ flight.flight_number }}</strong>
+                <br>
+                {{ flight.origin.city }} → {{ flight.destination.city }}
+                <br>
+                Departure: {{ flight.departure_time|date:"Y-m-d H:i" }}
+                <a href="{% url 'book' flight.id %}">Book Now</a>
+            </li>
+        {% empty %}
+            <li>No flights available.</li>
+        {% endfor %}
+    </ul>
+
+    <!-- Footer -->
+    <footer style="margin-top: 50px; padding: 20px; background-color: #f1f1f1; text-align: center;">
+        <p> 159352 A2
+            <br>&copy; Samantha Quilat - 23017224
+            <br> Logo made by ChatGpt
+        </p>
+    </footer>
+</body>
+</html>

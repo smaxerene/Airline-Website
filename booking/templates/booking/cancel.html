@@ -1,0 +1,269 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Cancel Booking</title>
+    <style>
+        /* Same styles as before for layout and form */
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #004080;
+        }
+
+        img.logo {
+            max-width: 200px;
+            display: block;
+            margin: 0 auto;
+        }
+
+        form, ul {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        li {
+            list-style-type: none;
+            background: white;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+        }
+
+        input[type="email"] {
+            width: 100%;
+            padding: 8px;
+            border-radius: 5px;
+            border: 1px solid #aaa;
+        }
+
+        #find {
+            text-decoration: none;
+            background: #0077cc;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            font-weight: 600;
+            border: none;
+            cursor: pointer;
+        }
+
+        button.cancel-btn {
+            margin-top: 10px;
+            background: #cc0000;
+            color: white;
+            padding: 8px 14px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        button.cancel-btn:hover {
+            background: #a00000;
+        }
+
+        .no-results {
+            text-align: center;
+            color: gray;
+        }
+
+        .home-button {
+            display: block;
+            width: fit-content;
+            margin: 10px auto 20px;
+            padding: 10px 20px;
+            background-color: #004080;
+            color: white;
+            text-align: center;
+            text-decoration: none;
+            border-radius: 6px;
+            font-weight: bold;
+            transition: background 0.3s ease;
+        }
+
+        .home-button:hover {
+            background-color: #002d5c;
+        }
+
+        /* MODAL styles */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+        }
+
+        .modal {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            width: 90%;
+            max-width: 400px;
+            position: relative;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal h2 {
+            margin-top: 0;
+        }
+
+        .modal button {
+            margin: 10px;
+            padding: 10px 20px;
+            border-radius: 6px;
+            border: none;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .btn-confirm {
+            background-color: #0077cc;
+            color: white;
+        }
+
+        .btn-cancel {
+            background-color: #999;
+            color: white;
+        }
+
+        .modal .close-btn {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            font-size: 18px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            color: #999;
+        }
+    </style>
+</head>
+
+<body>
+    <img src="/media/dairyflatlogo.png" alt="Dairy Flat Airport Logo" class="logo" />
+    <h1>Welcome to Dairy Flat Airport</h1>
+
+    <h2>Cancel Booking</h2>
+    <form method="post">{% csrf_token %}
+        <input type="email" name="email" placeholder="Enter your email" required>
+        <br><br>
+        <button type="submit" id="find">Find Bookings</button>
+    </form>
+
+    <!-- Lists all bookings -->
+    {% if email %}
+        {% if bookings %}
+            <h3>Bookings for {{ email}}:</h3>
+            <ul id="booking-list">
+            {% for booking in bookings %}
+                <li data-booking-id="{{ booking.id }}">
+                    Reference: {{ booking.reference_code }}<br>
+                    Flight: {{ booking.scheduled_flight }}<br>
+                    Booked on: {{ booking.booking_time|date:"Y-m-d H:i" }} <br>
+                    <button class="cancel-btn" data-id="{{ booking.id }}">Cancel Booking</button>
+                </li>
+            {% endfor %}
+            </ul>
+        {% else %}
+            <p class="no-results">No bookings found for {{ email }}</p>
+        {% endif %}
+    {% endif %}
+
+    <!-- Confirmation Modal -->
+    <div class="modal-overlay" id="confirmModal">
+        <div class="modal">
+            <h2>Are you sure you want to cancel this booking?</h2>
+            <button class="btn-confirm" id="confirmYesBtn">Yes</button>
+            <button class="btn-cancel" onclick="closeModal('confirmModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Success Modal -->
+    <div class="modal-overlay" id="successModal">
+        <div class="modal">
+            <h2>Booking cancelled</h2>
+            <button class="close-btn" onclick="closeModal('successModal')">✖</button>
+        </div>
+    </div>
+
+    <!-- For pop-up -->
+    <script>
+        let selectedBookingId = null;
+        const confirmModal = document.getElementById('confirmModal');
+        const successModal = document.getElementById('successModal');
+        const bookingList = document.getElementById('booking-list');
+
+        function openModal(id) {
+            document.getElementById(id).style.display = 'flex';
+        }
+
+        function closeModal(id) {
+            document.getElementById(id).style.display = 'none';
+        }
+
+        document.querySelectorAll('.cancel-btn').forEach(button => {
+            button.addEventListener('click', function () {
+                selectedBookingId = this.dataset.id;
+                openModal('confirmModal');
+            });
+        });
+
+        document.getElementById('confirmYesBtn').addEventListener('click', function () {
+            const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+            const cancelUrl = `/cancel/${selectedBookingId}/`;
+
+            fetch(cancelUrl, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': csrfToken,
+                    'Accept': 'application/json'
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === "success") {
+                    // Remove cancelled booking from DOM
+                    const cancelledItem = document.querySelector(`[data-booking-id="${selectedBookingId}"]`);
+                    cancelledItem.remove();
+                    closeModal('confirmModal');
+                    openModal('successModal');
+                } else {
+                    alert("Failed to cancel booking.");
+                }
+            })
+            .catch(error => {
+                console.error("Error:", error);
+                alert("Something went wrong.");
+            });
+        });
+    </script>
+
+    <!-- Home Button -->
+    <a href="{% url 'home' %}" class="home-button">← Back to Home</a>
+
+    <!-- Footer -->
+    <footer style="margin-top: 50px; padding: 20px; background-color: #f1f1f1; text-align: center;">
+        <p> 159352 A2
+            <br>&copy; Samantha Quilat - 23017224
+            <br> Logo made by ChatGpt
+        </p>
+    </footer>
+</body>
+</html>

@@ -1,0 +1,196 @@
+{% load static %}
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Book Flight</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f0f4f8;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+
+        h1 {
+            text-align: center;
+            color: #004080;
+            margin-bottom: 30px;
+        }
+
+        ul {
+            list-style: none;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            margin-bottom: 15px;
+            padding: 15px 20px;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.1);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.1em;
+        }
+
+        label {
+            display: inline-block;
+            width: 80px;
+        }
+
+        input {
+            font-size: 1em;
+            padding: 5px;
+            margin-bottom: 10px;
+            width: 200px;
+        }
+
+        button, a {
+            text-decoration: none;
+            background: #0077cc;
+            color: white;
+            padding: 8px 14px;
+            border-radius: 5px;
+            transition: background-color 0.3s ease;
+            font-weight: 600;
+            margin-top: 10px;
+            cursor: pointer;
+        }
+
+        button:hover, a:hover {
+            background-color: #005fa3;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.6);
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal {
+            background: #fff;
+            padding: 30px;
+            border-radius: 10px;
+            text-align: center;
+            width: 300px;
+            max-width: 90%;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        footer {
+            margin-top: 50px;
+            padding: 20px;
+            background-color: #f1f1f1;
+            text-align: center;
+        }
+
+        @media (max-width: 480px) {
+            li {
+                flex-direction: column;
+                align-items: flex-start;
+                font-size: 1em;
+            }
+
+            input {
+                width: 100%;
+            }
+
+            label {
+                width: auto;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <img src="/media/dairyflatlogo.png" alt="Dairy Flat Airport Logo" class="logo" />
+    <h1>Welcome to Dairy Flat Airport</h1>
+
+    <h1>Book Flight: {{ flight.flight_number }}</h1>
+
+    {% if error %}
+    <p style="color:red;">{{ error }}</p>
+    {% endif %}
+
+    <ul>
+        <li>
+            <form id="booking-form" method="post" action="{% url 'book' flight.id %}">
+                {% csrf_token %}
+                <label>Name:</label> <input type="text" name="name"><br>
+                <label>Email:</label> <input type="email" name="email"><br>
+                <div>
+                    <!-- Changed button type to button so it does NOT submit immediately -->
+                    <button type="button" class="book-btn">Book Now</button>
+                </div>
+            </form>
+        </li>
+    </ul>
+
+    <!-- Book Confirmation Modal -->
+    <div class="modal-overlay" id="bookConfirmModal">
+        <div class="modal">
+            <h2>Confirm Booking?</h2>
+            <button class="btn-confirm" id="bookYesBtn">Yes</button>
+            <button class="btn-cancel" onclick="closeModal('bookConfirmModal')">Cancel</button>
+        </div>
+    </div>
+
+    <!-- Booking Success Modal (optional - you can remove if you want server-side confirmation page) -->
+    <div class="modal-overlay" id="bookSuccessModal">
+        <div class="modal">
+            <h2>Booking successful</h2>
+            <button class="close-btn" onclick="closeModal('bookSuccessModal')">✖</button>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            function openModal(id) {
+                document.getElementById(id).classList.add('active');
+            }
+
+            function closeModal(id) {
+                document.getElementById(id).classList.remove('active');
+            }
+
+            document.querySelectorAll('.book-btn').forEach(button => {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault(); // Prevent immediate form submit
+                    openModal('bookConfirmModal');
+                });
+            });
+
+            document.getElementById('bookYesBtn').addEventListener('click', function () {
+                // Submit the form normally after user confirms
+                document.getElementById('booking-form').submit();
+            });
+
+            window.closeModal = closeModal; // needed for inline onclick in Cancel button
+        });
+    </script>
+
+    <a href="{% url 'home' %}" class="home-button">← Back to Home</a>
+
+
+    <footer>
+        <p> 159352 A2<br>
+            &copy; Samantha Quilat - 23017224<br>
+            Logo made by ChatGPT
+        </p>
+    </footer>
+
+</body>
+</html>
